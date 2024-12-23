@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import RegisterForm from '../components/register/registerform';
-import Tasks from '../components/tasks/tasks';
+import Login from '../components/login/login';
 
 export default function Home() {
     return (
@@ -13,7 +13,7 @@ export default function Home() {
                 <h1>Welcome to Task Management App</h1>
                 <p>Start managing your tasks efficiently from now.</p>
                 <RegisterForm />
-                <Tasks />
+                <Login />
             </main>
         </>
     );

@@ -2,17 +2,12 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { InferType } from 'yup';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { InferType } from 'yup';
 import axios from 'axios';
 
-const schema = yup.object().shape({
-    name: yup
-        .string()
-        .min(3, 'Name must be at least 3 characters long')
-        .max(20, 'Name must not exceed 20 characters')
-        .required('Name is required'),
+const schema = yup.object({
     email: yup
         .string()
         .email('Invalid email address')
@@ -22,56 +17,29 @@ const schema = yup.object().shape({
         .min(8, 'Password must be at least 8 characters long')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
         .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-        .matches(/\d/, 'Password must contain at least one number')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
         .required('Password is required'),
 });
 
-type RegisterFormInputs = InferType<typeof schema>;
+type LoginFormInputs = InferType<typeof schema>;
 
-const RegisterForm = () => {
-    const {
-        handleSubmit,
-        control,
-        formState: { errors },
-    } = useForm<RegisterFormInputs>({
+const Login: React.FC = () => {
+    const { handleSubmit, control, formState: { errors } } = useForm<LoginFormInputs>({
         resolver: yupResolver(schema),
     });
 
-    const onSubmit = async (data: RegisterFormInputs) => {
+    const onSubmit = async (data: LoginFormInputs) => {
         try {
-            const response = await axios.post('http://localhost:3000/user/register', data);
-            console.log('Registration successful:', response.data);
-            alert('Registration successful!');
+            const response = await axios.post('http://localhost:3000/user/login', data);
+            console.log('Response:', response.data);
+            alert('Login successful!');
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('Error response:', error.response.data);
-                alert(`Registration failed: ${error.response.data.message}`);
-            } else {
-                console.error('Error during registration:', error);
-                alert('An error occurred. Please try again.');
-            }
+            console.error('Error during login:', error);
+            alert('Login failed. Please try again.');
         }
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 400, margin: 'auto' }}>
-            <Controller
-                name="name"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                    <TextField
-                        {...field}
-                        label="Name"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        error={!!errors.name}
-                        helperText={errors.name?.message}
-                    />
-                )}
-            />
             <Controller
                 name="email"
                 control={control}
@@ -80,7 +48,6 @@ const RegisterForm = () => {
                     <TextField
                         {...field}
                         label="Email"
-                        type="email"
                         variant="outlined"
                         fullWidth
                         margin="normal"
@@ -97,20 +64,20 @@ const RegisterForm = () => {
                     <TextField
                         {...field}
                         label="Password"
-                        type="password"
                         variant="outlined"
                         fullWidth
                         margin="normal"
+                        type="password"
                         error={!!errors.password}
                         helperText={errors.password?.message}
                     />
                 )}
             />
             <Button type="submit" variant="contained" color="primary" fullWidth>
-                Register
+                Login
             </Button>
         </form>
     );
 };
 
-export default RegisterForm;
+export default Login;
