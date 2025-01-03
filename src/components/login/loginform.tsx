@@ -5,16 +5,12 @@ import * as yup from "yup";
 import { InferType } from "yup";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import axios from "axios";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import { useRouter } from "next/router";
+import { useAuth } from "../../AuthContext";
 
 const schema = yup.object().shape({
-    name: yup
-        .string()
-        .min(3, "Name must be at least 3 characters long")
-        .max(20, "Name must not exceed 20 characters")
-        .required("Name is required"),
     email: yup
         .string()
         .email("Invalid email address")
@@ -22,17 +18,10 @@ const schema = yup.object().shape({
     password: yup
         .string()
         .min(8, "Password must be at least 8 characters long")
-        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-        .matches(/\d/, "Password must contain at least one number")
-        .matches(
-            /[!@#$%^&*(),.?":{}|<>]/,
-            "Password must contain at least one special character"
-        )
         .required("Password is required"),
 });
 
-type RegisterFormInputs = InferType<typeof schema>;
+type LoginFormInputs = InferType<typeof schema>;
 
 const FormContainer = styled(Box)({
     background: "linear-gradient(135deg, #220050, #110136)",
@@ -96,54 +85,31 @@ const SubmitButton = styled(Button)({
     },
 });
 
-const RegisterForm = () => {
+const LoginForm = () => {
+    const router = useRouter();
+    const { login } = useAuth();
+
     const {
         handleSubmit,
         control,
         formState: { errors },
-    } = useForm<RegisterFormInputs>({
+    } = useForm<LoginFormInputs>({
         resolver: yupResolver(schema),
     });
 
-    const onSubmit = async (data: RegisterFormInputs) => {
+    const onSubmit = async (data: LoginFormInputs) => {
         try {
-            const response = await axios.post(
-                "http://localhost:3000/user/register",
-                data
-            );
-            console.log("Registration successful:", response.data);
-            alert("Registration successful!");
+            await login({ email: data.email, password: data.password });
+            router.push("/");
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                console.error("Error response:", error.response.data);
-                alert(`Registration failed: ${error.response.data.message}`);
-            } else {
-                console.error("Error during registration:", error);
-                alert("An error occurred. Please try again.");
-            }
+            alert("Login failed. Please check your credentials.");
         }
     };
 
     return (
         <FormContainer>
-            <FormTitle>Register</FormTitle>
+            <FormTitle>Login</FormTitle>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Controller
-                    name="name"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                        <CustomTextField
-                            {...field}
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            error={!!errors.name}
-                            helperText={errors.name?.message}
-                        />
-                    )}
-                />
                 <Controller
                     name="email"
                     control={control}
@@ -179,11 +145,11 @@ const RegisterForm = () => {
                     )}
                 />
                 <SubmitButton type="submit" variant="contained">
-                    Register
+                    Login
                 </SubmitButton>
             </form>
         </FormContainer>
     );
 };
 
-export default RegisterForm;
+export default LoginForm;

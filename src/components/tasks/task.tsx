@@ -10,56 +10,59 @@ interface TaskProps {
   onTaskUpdate: () => void;
 }
 
-const TaskContainer = styled(Box)({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  backgroundColor: "#1e1e1e",
-  padding: "10px 15px",
-  borderRadius: "12px",
-  marginBottom: "10px",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-  fontFamily: "Roboto, sans-serif",
-});
+const TaskContainer = styled(Box)`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: linear-gradient(90deg,rgb(84, 44, 119),rgb(14, 15, 78));
+  padding: 10px 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  font-family: "Roboto", sans-serif;
+  width: 100%;
+  max-width: 800px;
+`;
 
-const TaskText = styled(Typography)({
-  color: "#fff",
-  fontSize: "16px",
-  flexGrow: 1,
-  marginRight: "10px",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-});
+const TaskText = styled(Typography)`
+  color: #fff;
+  font-size: 16px;
+  flex-grow: 1;
+  margin-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+`;
 
-const EditButton = styled(Button)({
-  color: "transparent",
-  background: "transparent",
-  backgroundImage: "linear-gradient(to right, #ff4081, #9c27b0)",
-  WebkitBackgroundClip: "text",
-  fontWeight: "bold",
-  marginRight: "10px",
-  transition: "transform 0.3s ease, color 0.3s ease",
-  "&:hover": {
-    background: "transparent",
-    color: "transparent",
-    backgroundImage: "linear-gradient(to right, #ff4081, #9c27b0)",
-    WebkitBackgroundClip: "text",
-    transform: "scale(1.05)",
-  },
-});
+const EditButton = styled(Button)`
+  color: transparent;
+  background: transparent;
+  background-image: linear-gradient(to right, #ff4081, #9c27b0);
+  -webkit-background-clip: text;
+  font-weight: bold;
+  margin-right: 10px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  &:hover {
+    background: transparent;
+    color: transparent;
+    background-image: linear-gradient(to right, #ff4081, #9c27b0);
+    -webkit-background-clip: text;
+    transform: scale(1.05);
+  }
+`;
 
-const DeleteButton = styled(Button)({
-  color: "red",
-  background: "transparent",
-  marginRight: "10px",
-  transition: "transform 0.3s ease, color 0.3s ease",
-  "&:hover": {
-    background: "transparent",
-    transform: "scale(1.05)",
-    color: "#d32f2f",
-  },
-});
+const DeleteButton = styled(Button)`
+  color: red;
+  background: transparent;
+  margin-right: 10px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  &:hover {
+    background: transparent;
+    transform: scale(1.05);
+    color: #d32f2f;
+  }
+`;
 
 const Task: React.FC<TaskProps> = ({ id, task, isActive, onTaskUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
