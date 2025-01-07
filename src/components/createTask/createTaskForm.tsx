@@ -64,35 +64,28 @@ const FormContainer = styled('div')({
     gap: '10px',
 });
 
-const TaskContainer = styled('div')({
-    marginTop: '2rem',
-    width: '100%',
-    maxWidth: '800px',
-    background: 'linear-gradient(145deg, #1d1140, #2a1766)',
-    padding: '2rem',
-    borderRadius: '12px',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
-    marginBottom: '0',
-});
+interface TaskType {
+    id: string;
+    task: string;
+    isActive: boolean;
+}
 
-const CreateTaskForm: React.FC = () => {
-    const { handleSubmit, control, formState: { errors } } = useForm<CreateTaskFormInputs>({
+const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> = ({ onTaskCreated }) => {
+    const { handleSubmit, control, formState: { errors }, reset } = useForm<CreateTaskFormInputs>({
         resolver: yupResolver(schema),
     });
 
     const { token } = useAuth();
-    console.log(token);
 
     const onSubmit = async (data: CreateTaskFormInputs) => {
         try {
-            console.log(data);
             const response = await axios.post('http://localhost:3000/tasks', data, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-            console.log('Task added:', response.data);
-            alert('Task added successfully!');
+            reset();
+            onTaskCreated(response.data);
         } catch (error) {
             console.error('Error adding task:', error);
             alert('Failed to add task.');

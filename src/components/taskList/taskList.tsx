@@ -10,33 +10,34 @@ interface TaskType {
 
 interface TaskListProps {
   userId: string;
+  setShouldFetchTasks: React.Dispatch<React.SetStateAction<boolean>>;
+  shouldFetchTasks: boolean;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ userId }) => {
+const TaskList: React.FC<TaskListProps> = ({ userId, setShouldFetchTasks, shouldFetchTasks }) => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/tasks?userId=${userId}`);
-        setTasks(response.data);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/tasks/${userId}`);
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchTasks();
   }, [userId]);
 
+  useEffect(() => {
+    if (shouldFetchTasks) {
+      fetchTasks();
+      setShouldFetchTasks(false);
+    }
+  }, [shouldFetchTasks, setShouldFetchTasks]);
+
   const handleTaskUpdate = () => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/tasks?userId=${userId}`);
-        setTasks(response.data);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
     fetchTasks();
   };
 

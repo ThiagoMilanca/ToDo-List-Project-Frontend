@@ -75,6 +75,7 @@ const ErrorMessage = styled.p`
 export default function Home() {
     const { isLoggedIn, user, logout } = useAuth();
     const [message, setMessage] = useState<string | null>(null);
+    const [shouldFetchTasks, setShouldFetchTasks] = useState(false);
 
     useEffect(() => {
         if (isLoggedIn && user) {
@@ -96,12 +97,16 @@ export default function Home() {
                 </MainText>
 
                 <TaskContainer>
-                    <CreateTaskForm />
+                    <CreateTaskForm onTaskCreated={() => setShouldFetchTasks(true)} />
                 </TaskContainer>
 
                 <TaskContainer>
                     {isLoggedIn && user?.id ? (
-                        <TaskList userId={user.id} />
+                        <TaskList
+                            userId={user.id}
+                            setShouldFetchTasks={setShouldFetchTasks}
+                            shouldFetchTasks={shouldFetchTasks}
+                        />
                     ) : (
                         <ErrorMessage>{message}</ErrorMessage>
                     )}
