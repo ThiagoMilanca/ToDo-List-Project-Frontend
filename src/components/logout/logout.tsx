@@ -1,11 +1,11 @@
-import axios from "axios";
+import axiosInstance from "../../lib/axios";
 
 export const logout = async (): Promise<void> => {
     try {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
-        const response = await axios.post("http://localhost:3000/user/logout");
+        const response = await axiosInstance.post("/user/logout");
 
         alert(response.data.message);
     } catch (error) {

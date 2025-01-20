@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../AuthContext';
 import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { styled } from '@mui/system';
-import axios from 'axios';
+import axiosInstance from '../../lib/axios';
 
 const schema = yup.object().shape({
     task: yup
@@ -77,9 +77,12 @@ const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> =
 
     const { token } = useAuth();
 
+    const [loading, setLoading] = useState(false);
+
     const onSubmit = async (data: CreateTaskFormInputs) => {
+        setLoading(true);
         try {
-            const response = await axios.post('http://localhost:3000/tasks', data, {
+            const response = await axiosInstance.post('/tasks', data, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
@@ -89,6 +92,8 @@ const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> =
         } catch (error) {
             console.error('Error adding task:', error);
             alert('Failed to add task.');
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -107,7 +112,7 @@ const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> =
                         />
                     )}
                 />
-                <AddTaskButton type="submit">Add Task</AddTaskButton>
+                <AddTaskButton type="submit" disabled={loading}>{loading ? 'Adding...' : 'Add Task'}</AddTaskButton>
             </FormContainer>
 
             {errors.task && <p style={{ color: '#f44336', fontSize: '12px' }}>{errors.task.message}</p>}

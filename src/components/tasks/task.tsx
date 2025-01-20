@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Box, Button, Typography, TextField } from "@mui/material";
 import { styled } from "@mui/system";
+import axiosInstance from "../../lib/axios";
+import { set } from "react-hook-form";
 
 interface TaskProps {
   id: string;
@@ -70,25 +72,33 @@ const Task: React.FC<TaskProps> = ({ id, task, isActive, onTaskUpdate }) => {
 
   if (!isActive) return null;
 
+const [loading, setLoading] = useState(false);
+
   const handleEdit = async () => {
+    setLoading(true);
     try {
-      await axios.put(`http://localhost:3000/tasks/${id}`, {
+      await axiosInstance.put(`/tasks/${id}`, {
         task: editedTask,
       });
       onTaskUpdate();
       setIsEditing(false);
     } catch (error) {
       console.error("Error editing task:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
-      await axios.delete(`http://localhost:3000/tasks/${id}`);
+      await axiosInstance.delete(`/tasks/${id}`);
       onTaskUpdate();
     } catch (error) {
       console.error("Error deleting task:", error);
-    }
+    }finally{
+      setLoading(false);
+    };
   };
 
   return (
@@ -109,17 +119,29 @@ const Task: React.FC<TaskProps> = ({ id, task, isActive, onTaskUpdate }) => {
         <TaskText>{task}</TaskText>
       )}
       <div>
-        {isEditing ? (
-          <EditButton onClick={handleEdit} variant="text">
-            Save
+      {isEditing ? (
+        <>
+          <EditButton onClick={handleEdit} variant="text" disabled={loading}>
+            {loading ? "Saving..." : "Save"}
           </EditButton>
+        <DeleteButton
+          onClick={() => {
+          setIsEditing(false);
+          setEditedTask(task);
+        }}
+        disabled={loading}
+        >
+          Cancel
+        </DeleteButton>
+        </>
         ) : (
-          <EditButton onClick={() => setIsEditing(true)} variant="text">
-            Edit
-          </EditButton>
-        )}
-        <DeleteButton onClick={handleDelete} variant="text">
-          Delete
+              <EditButton onClick={() => setIsEditing(true)} variant="text">
+                Edit
+              </EditButton>
+      )}
+
+        <DeleteButton onClick={handleDelete} variant="text" disabled={loading}>
+          {loading ? "Deleting..." : "Delete"}
         </DeleteButton>
       </div>
     </TaskContainer>

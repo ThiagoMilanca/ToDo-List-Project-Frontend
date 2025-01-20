@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import axiosInstance from "../../lib/axios";
 
 const schema = yup.object().shape({
     name: yup
@@ -96,6 +97,8 @@ const SubmitButton = styled(Button)({
     },
 });
 
+const [loading, setLoading] = useState(false);
+
 const RegisterForm = () => {
     const {
         handleSubmit,
@@ -106,9 +109,10 @@ const RegisterForm = () => {
     });
 
     const onSubmit = async (data: RegisterFormInputs) => {
+        setLoading(true);
         try {
-            const response = await axios.post(
-                "http://localhost:3000/user/register",
+            const response = await axiosInstance.post(
+                "/user/register",
                 data
             );
             console.log("Registration successful:", response.data);
@@ -121,6 +125,8 @@ const RegisterForm = () => {
                 console.error("Error during registration:", error);
                 alert("An error occurred. Please try again.");
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -178,8 +184,8 @@ const RegisterForm = () => {
                         />
                     )}
                 />
-                <SubmitButton type="submit" variant="contained">
-                    Register
+                <SubmitButton type="submit" variant="contained" disabled={loading}>
+                    {loading ? "Loading..." : "Register"}
                 </SubmitButton>
             </form>
         </FormContainer>

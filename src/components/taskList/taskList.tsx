@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Task from "../tasks/task";
+import axiosInstance from "../../lib/axios";
 
 interface TaskType {
   id: string;
@@ -19,7 +19,7 @@ const TaskList: React.FC<TaskListProps> = ({ userId, setShouldFetchTasks, should
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/tasks/${userId}`);
+      const response = await axiosInstance.get(`/tasks/${userId}`);
       setTasks(response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
