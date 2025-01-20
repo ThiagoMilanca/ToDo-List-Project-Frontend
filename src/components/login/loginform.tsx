@@ -85,9 +85,9 @@ const SubmitButton = styled(Button)({
     },
 });
 
-const [loading, setLoading] = useState(false);
-
 const LoginForm = () => {
+    const [loading, setLoading] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
     const router = useRouter();
     const { login } = useAuth();
 
@@ -101,12 +101,15 @@ const LoginForm = () => {
 
     const onSubmit = async (data: LoginFormInputs) => {
         setLoading(true);
+        setLoginSuccess(true);
+
         try {
             await login({ email: data.email, password: data.password });
             router.push("/");
         } catch (error) {
             alert("Login failed. Please check your credentials.");
-        }finally{
+            setLoginSuccess(false);
+        } finally {
             setLoading(false);
         }
     };
@@ -149,8 +152,8 @@ const LoginForm = () => {
                         />
                     )}
                 />
-                <SubmitButton type="submit" variant="contained" disabled={loading}>
-                    {loading ? "Logging in..." : "Login"}
+                <SubmitButton type="submit" variant="contained" disabled={loading || loginSuccess}>
+                    {loading ? "Logging in..." : loginSuccess ? "Logged In" : "Login"}
                 </SubmitButton>
             </form>
         </FormContainer>

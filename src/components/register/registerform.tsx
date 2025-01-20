@@ -5,10 +5,13 @@ import * as yup from "yup";
 import { InferType } from "yup";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import axios from "axios";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import { useRouter } from "next/router";
 import axiosInstance from "../../lib/axios";
+import axios from "axios";
+import { useAuth } from "../../AuthContext";
+
 
 const schema = yup.object().shape({
     name: yup
@@ -98,25 +101,27 @@ const SubmitButton = styled(Button)({
 });
 
 const [loading, setLoading] = useState(false);
+const [optimisticLogin, setOptimisticLogin] = useState(false);
 
 const RegisterForm = () => {
-    const {
-        handleSubmit,
-        control,
-        formState: { errors },
-    } = useForm<RegisterFormInputs>({
+    const { handleSubmit, control, formState: { errors } } = useForm<RegisterFormInputs>({
         resolver: yupResolver(schema),
     });
+    const router = useRouter();
 
     const onSubmit = async (data: RegisterFormInputs) => {
         setLoading(true);
+        setOptimisticLogin(true);
+
         try {
-            const response = await axiosInstance.post(
-                "/user/register",
-                data
-            );
+            const { login } = useAuth();
+            await login({ email: data.email, password: data.password });
+
+            const response = await axiosInstance.post("/user/register", data);
             console.log("Registration successful:", response.data);
-            alert("Registration successful!");
+
+            router.push("/");
+            alert("Registration successful and logged in!");
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 console.error("Error response:", error.response.data);
@@ -127,6 +132,7 @@ const RegisterForm = () => {
             }
         } finally {
             setLoading(false);
+            setOptimisticLogin(false);
         }
     };
 
@@ -184,8 +190,8 @@ const RegisterForm = () => {
                         />
                     )}
                 />
-                <SubmitButton type="submit" variant="contained" disabled={loading}>
-                    {loading ? "Loading..." : "Register"}
+                <SubmitButton type="submit" variant="contained" disabled={loading || optimisticLogin}>
+                    {loading || optimisticLogin ? "Loading..." : "Register"}
                 </SubmitButton>
             </form>
         </FormContainer>

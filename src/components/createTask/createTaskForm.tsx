@@ -78,21 +78,36 @@ const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> =
     const { token } = useAuth();
 
     const [loading, setLoading] = useState(false);
+    const [optimisticTask, setOptimisticTask] = useState<TaskType | null>(null);
 
     const onSubmit = async (data: CreateTaskFormInputs) => {
         setLoading(true);
+        setOptimisticTask({
+            id: 'temp-id',
+            task: data.task,
+            isActive: true,
+        });
+
+        onTaskCreated({
+            id: 'temp-id',
+            task: data.task,
+            isActive: true,
+        });
+
         try {
             const response = await axiosInstance.post('/tasks', data, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-            reset();
+
+            setOptimisticTask(null);
             onTaskCreated(response.data);
         } catch (error) {
             console.error('Error adding task:', error);
+            setOptimisticTask(null);
             alert('Failed to add task.');
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -112,7 +127,9 @@ const CreateTaskForm: React.FC<{ onTaskCreated: (newTask: TaskType) => void }> =
                         />
                     )}
                 />
-                <AddTaskButton type="submit" disabled={loading}>{loading ? 'Adding...' : 'Add Task'}</AddTaskButton>
+                <AddTaskButton type="submit" disabled={loading}>
+                    {loading ? 'Adding...' : optimisticTask ? 'Task Added' : 'Add Task'}
+                </AddTaskButton>
             </FormContainer>
 
             {errors.task && <p style={{ color: '#f44336', fontSize: '12px' }}>{errors.task.message}</p>}
